@@ -1,6 +1,7 @@
 CREATE DATABASE hackathon_sql;
 USE hackathon_sql;
 
+-- Bảng Movies
 CREATE TABLE Movies(
 	movie_id VARCHAR(5) PRIMARY KEY NOT NULL,
 	title VARCHAR(100) UNIQUE,
@@ -8,8 +9,9 @@ CREATE TABLE Movies(
     category VARCHAR(50) NOT NULL
 );
 
+-- Bảng Showtimes
 CREATE TABLE Showtimes(
-	show_id VARCHAR(5) PRIMARY KEY,
+	show_id VARCHAR(5) PRIMARY KEY UNIQUE,
     FOREIGN KEY(movie_id) REFERENCES Movies(movie_id),
 	movie_id VARCHAR(5) NOT NULL,
 	room_name VARCHAR(50) NOT NULL,
@@ -17,6 +19,7 @@ CREATE TABLE Showtimes(
     ticket_price DECIMAL(10,2) NOT NULL
 );
 
+-- Bảng Customers
 CREATE TABLE Customers(
 	customer_id VARCHAR(5) NOT NULL,
 	full_name VARCHAR(100),
@@ -24,13 +27,14 @@ CREATE TABLE Customers(
 	phone VARCHAR(15) UNIQUE
 );
 
+-- Bảng Tickets
 CREATE TABLE Tickets(
 	ticket_id INT PRIMARY KEY AUTO_INCREMENT,
 	show_id VARCHAR(5),
     FOREIGN KEY(show_id) REFERENCES Showtimes(show_id),
 	customer_id VARCHAR(5),
     FOREIGN KEY(customer_id) REFERENCES Customers(customer_id),
-    seat_number VARCHAR(10),
+    seat_number VARCHAR(10) UNIQUE,
     status VARCHAR(20) NOT NULL
 );
 
@@ -58,36 +62,50 @@ INSERT INTO Tickets VALUES
 (4,'SO4','C01','C10','Booked'),
 (5,'SO3','C02','D01','Booked');
 
+-- 3. tăng giá vé lên 10%
 UPDATE Showtimes
 SET ticket_price = ticket_price * 1.1
 WHERE Showtimes = 'S01';
 
+-- 4. cập nhật số điện thoại khách hàng
 UPDATE Customers 
 SET phone = '0988888888'
 WHERE Customers = 'Nguyễn Văn AN';
 
+
+-- 5. xóa tất cả các vé có trạng tái cancelled 
 DELETE FROM Tickets
 WHERE status = 'Cancelled';
 
+
+-- 6.liệt kê danh sách phim có thời lượng trên 120
 SELECT *
 FROM Movies
 WHERE duration > 120;
 
+
+-- 7. lấy thông tin có chứa từ khóa tên mai
 SELECT *
 FROM Customer
-WHERE full_name ='mai';
+WHERE full_name LIKE '%mai%';
 
+-- 8.hiển thị danh sách các suất chiếu giảm dần
+SELECT show_id, room_name,start_time
+FROM Showtimes
+ORDER BY start_time DESC;
 
-
+-- 9 lấy 3 vé cao nhất rạp
 SELECT *
 FROM Showtimes
 ORDER BY start_time DESC
 LIMIT 3;
 
+-- 10. hiển thị và bỏ qua phim đầu lấy 2 phim tiếp theo
 SELECT title, duration
 FROM Movies
 LIMIT 2 OFFSET 1;
 
+-- 11. hiển thị danh sách và chỉ lấy vé có trạng thái booked
 SELECT ticket_id,full_name,title,seat_number
 FROM Tickets tic
 JOIN Customer cus ON cus.customer_id = tic.customer_id
